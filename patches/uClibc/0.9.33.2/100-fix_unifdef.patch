@@ -1,6 +1,5 @@
-diff -Nrupa uClibc-0.9.33.2.orig/extra/scripts/unifdef.c uClibc-0.9.33.2/extra/scripts/unifdef.c
---- uClibc-0.9.33.2.orig/extra/scripts/unifdef.c	2012-05-15 09:20:09.000000000 +0200
-+++ uClibc-0.9.33.2/extra/scripts/unifdef.c	2014-10-25 17:07:33.000000000 +0200
+--- a/extra/scripts/unifdef.c
++++ b/extra/scripts/unifdef.c
 @@ -78,8 +78,6 @@ __FBSDID("$FreeBSD: /repoman/r/ncvs/src/
  #define errx(exit_code, fmt, args...) ({ warnx(fmt, ## args); exit(exit_code); })
  #define err(exit_code, fmt, args...)  errx(exit_code, fmt ": %s", ## args, strerror(errno))
