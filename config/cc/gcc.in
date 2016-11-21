@@ -76,9 +76,24 @@ config CC_GCC_V_6_2_0
     prompt "6.2.0"
     select CC_GCC_6
 
+config CC_GCC_V_6_1_0
+    bool
+    prompt "6.1.0"
+    select CC_GCC_6
+
 config CC_GCC_V_5_4_0
     bool
     prompt "5.4.0"
+    select CC_GCC_5
+
+config CC_GCC_V_5_3_0
+    bool
+    prompt "5.3.0"
+    select CC_GCC_5
+
+config CC_GCC_V_5_2_0
+    bool
+    prompt "5.2.0"
     select CC_GCC_5
 
 config CC_GCC_V_linaro_5_2
@@ -96,6 +111,11 @@ config CC_GCC_V_linaro_4_9
 config CC_GCC_V_4_9_4
     bool
     prompt "4.9.4"
+    select CC_GCC_4_9
+
+config CC_GCC_V_4_9_3
+    bool
+    prompt "4.9.3"
     select CC_GCC_4_9
 
 config CC_GCC_V_linaro_4_8
@@ -213,7 +233,7 @@ config CC_GCC_USE_GRAPHITE
     select ISL_NEEDED
     help
       Enable the GRAPHITE loop optimsations.
-      
+
       On some systems (eg. Cygwin), CLooG and ISL (required to enable
       GRAPHITE) may not build properly (yet), so you'll have to say 'N'
       here (or help debug the issues)
