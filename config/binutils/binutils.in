@@ -117,6 +117,14 @@ config BINUTILS_VERSION
 
 endif # ! BINUTILS_CUSTOM
 
+config BINUTILS_2_27_or_later
+    bool
+    select BINUTILS_2_26_1_or_later
+
+config BINUTILS_2_26_1_or_later
+    bool
+    select BINUTILS_2_26_or_later
+
 config BINUTILS_2_26_or_later
     bool
     select BINUTILS_2_25_1_or_later
