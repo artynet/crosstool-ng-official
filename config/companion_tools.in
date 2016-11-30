@@ -20,7 +20,8 @@ config COMP_TOOLS
         autoconf >= 2.63
         automake >= 1.10.2
         libtool >= 2.2.4
-      
+        patch >= 2.7.5
+
       If your system has older versions, we can build them for you,
       but you are strongly encouraged to update your system instead!
 
