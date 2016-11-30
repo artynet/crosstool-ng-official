@@ -43,16 +43,16 @@ Index: b/gcc/config/aarch64/aarch64-linux.h
 @@ -21,7 +21,12 @@
  #ifndef GCC_AARCH64_LINUX_H
  #define GCC_AARCH64_LINUX_H
- 
+
 +/* The AArch64 port currently supports two dynamic linkers:
 +   - ld-linux-aarch64.so.1 - GLIBC dynamic linker
 +   - ld-musl-aarch64.so.1 - musl libc dynamic linker  */
  #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux-aarch64.so.1"
 +#undef MUSL_DYNAMIC_LINKER
 +#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-aarch64.so.1"
- 
+
  #define CPP_SPEC "%{pthread:-D_REENTRANT}"
- 
+
 Index: b/gcc/config/arm/linux-eabi.h
 ===================================================================
 --- a/gcc/config/arm/linux-eabi.h
@@ -60,7 +60,7 @@ Index: b/gcc/config/arm/linux-eabi.h
 @@ -77,6 +77,23 @@
      %{mfloat-abi=soft*:" GLIBC_DYNAMIC_LINKER_SOFT_FLOAT "} \
      %{!mfloat-abi=*:" GLIBC_DYNAMIC_LINKER_DEFAULT "}"
- 
+
 +/* For ARM musl currently supports four dynamic linkers:
 +   - ld-musl-arm.so.1 - for the EABI-derived soft-float ABI
 +   - ld-musl-armhf.so.1 - for the EABI-derived hard-float ABI
@@ -101,7 +101,7 @@ Index: b/gcc/config/i386/linux.h
 --- a/gcc/config/i386/linux.h
 +++ b/gcc/config/i386/linux.h
 @@ -21,3 +21,5 @@
- 
+
  #define GNU_USER_LINK_EMULATION "elf_i386"
  #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux.so.2"
 +#undef MUSL_DYNAMIC_LINKER
@@ -121,17 +121,17 @@ Index: b/gcc/config/linux.h
  #define OPTION_BIONIC (linux_libc == LIBC_BIONIC)
 +#define OPTION_MUSL   (linux_libc == LIBC_MUSL)
  #endif
- 
+
  #define GNU_USER_TARGET_OS_CPP_BUILTINS()			\
 @@ -53,18 +55,21 @@
     uClibc or Bionic is the default C library and whether
     -muclibc or -mglibc or -mbionic has been passed to change the default.  */
- 
+
 -#define CHOOSE_DYNAMIC_LINKER1(LIBC1, LIBC2, LIBC3, LD1, LD2, LD3)	\
 -  "%{" LIBC2 ":" LD2 ";:%{" LIBC3 ":" LD3 ";:" LD1 "}}"
 +#define CHOOSE_DYNAMIC_LINKER1(LIBC1, LIBC2, LIBC3, LIBC4, LD1, LD2, LD3, LD4)	\
 +  "%{" LIBC2 ":" LD2 ";:%{" LIBC3 ":" LD3 ";:%{" LIBC4 ":" LD4 ";:" LD1 "}}}"
- 
+
  #if DEFAULT_LIBC == LIBC_GLIBC
 -#define CHOOSE_DYNAMIC_LINKER(G, U, B) \
 -  CHOOSE_DYNAMIC_LINKER1 ("mglibc", "muclibc", "mbionic", G, U, B)
@@ -156,7 +156,7 @@ Index: b/gcc/config/linux.h
 @@ -82,23 +87,32 @@
  #define BIONIC_DYNAMIC_LINKER64 "/system/bin/linker64"
  #define BIONIC_DYNAMIC_LINKERX32 "/system/bin/linkerx32"
- 
+
 +/* Musl dynamic linker paths must be defined on a per-architecture
 +   basis, for each architecture supported by Musl. However, in order
 +   to let other architectures continue to build with other C
@@ -182,13 +182,13 @@ Index: b/gcc/config/linux.h
    CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKERX32, UCLIBC_DYNAMIC_LINKERX32, \
 -			 BIONIC_DYNAMIC_LINKERX32)
 +			 BIONIC_DYNAMIC_LINKERX32, MUSL_DYNAMIC_LINKERX32)
- 
+
  /* Determine whether the entire c99 runtime
     is present in the runtime library.  */
  #undef TARGET_C99_FUNCTIONS
 -#define TARGET_C99_FUNCTIONS (OPTION_GLIBC)
 +#define TARGET_C99_FUNCTIONS (OPTION_GLIBC || OPTION_MUSL)
- 
+
  /* Whether we have sincos that follows the GNU extension.  */
  #undef TARGET_HAS_SINCOS
 @@ -107,3 +121,74 @@
@@ -285,7 +285,7 @@ Index: b/gcc/config/microblaze/linux.h
 @@ -25,7 +25,23 @@
  #undef TLS_NEEDS_GOT
  #define TLS_NEEDS_GOT 1
- 
+
 -#define DYNAMIC_LINKER "/lib/ld.so.1"
 +#if TARGET_BIG_ENDIAN_DEFAULT == 0 /* LE */
 +#define MUSL_DYNAMIC_LINKER_E "%{EB:;:el}"
@@ -323,7 +323,7 @@ Index: b/gcc/config/mips/linux.h
 +++ b/gcc/config/mips/linux.h
 @@ -18,3 +18,11 @@
  <http://www.gnu.org/licenses/>.  */
- 
+
  #define GLIBC_DYNAMIC_LINKER "/lib/ld.so.1"
 +
 +#if TARGET_ENDIAN_DEFAULT == 0 /* LE */
@@ -332,7 +332,7 @@ Index: b/gcc/config/mips/linux.h
 +#define MUSL_DYNAMIC_LINKER_E "%{EL:el}"
 +#endif
 +#undef MUSL_DYNAMIC_LINKER
-+#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-mips" MUSL_DYNAMIC_LINKER_E ".so.1"
++#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-mips" MUSL_DYNAMIC_LINKER_E "%{msoft-float:-sf}.so.1"
 Index: b/gcc/config/rs6000/linux64.h
 ===================================================================
 --- a/gcc/config/rs6000/linux64.h
@@ -362,7 +362,7 @@ Index: b/gcc/config/rs6000/linux64.h
  #define GNU_USER_DYNAMIC_LINKER64 \
 -  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER64, UCLIBC_DYNAMIC_LINKER64)
 +  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER64, UCLIBC_DYNAMIC_LINKER64, MUSL_DYNAMIC_LINKER64)
- 
+
  #undef  DEFAULT_ASM_ENDIAN
  #if (TARGET_DEFAULT & MASK_LITTLE_ENDIAN)
 Index: b/gcc/config/rs6000/secureplt.h
@@ -371,7 +371,7 @@ Index: b/gcc/config/rs6000/secureplt.h
 +++ b/gcc/config/rs6000/secureplt.h
 @@ -18,3 +18,4 @@
  <http://www.gnu.org/licenses/>.  */
- 
+
  #define CC1_SECURE_PLT_DEFAULT_SPEC "-msecure-plt"
 +#define LINK_SECURE_PLT_DEFAULT_SPEC "--secure-plt"
 Index: b/gcc/config/rs6000/sysv4.h
@@ -385,21 +385,21 @@ Index: b/gcc/config/rs6000/sysv4.h
 +#ifndef LINK_SECURE_PLT_DEFAULT_SPEC
 +#define LINK_SECURE_PLT_DEFAULT_SPEC ""
 +#endif
- 
+
  /* Pass -G xxx to the compiler.  */
  #define	CC1_SPEC "%{G*} %(cc1_cpu)" \
 @@ -585,7 +588,8 @@
- 
+
  /* Override the default target of the linker.  */
  #define	LINK_TARGET_SPEC \
 -  ENDIAN_SELECT("", " --oformat elf32-powerpcle", "")
 +  ENDIAN_SELECT("", " --oformat elf32-powerpcle", "") \
 +  "%{!mbss-plt: %{!msecure-plt: %(link_secure_plt_default)}}"
- 
+
  /* Any specific OS flags.  */
  #define LINK_OS_SPEC "\
 @@ -763,15 +767,18 @@
- 
+
  #define GLIBC_DYNAMIC_LINKER "/lib/ld.so.1"
  #define UCLIBC_DYNAMIC_LINKER "/lib/ld-uClibc.so.0"
 +#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-powerpc.so.1"
@@ -417,7 +417,7 @@ Index: b/gcc/config/rs6000/sysv4.h
  #define GNU_USER_DYNAMIC_LINKER \
 -  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER, UCLIBC_DYNAMIC_LINKER)
 +  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER, UCLIBC_DYNAMIC_LINKER, MUSL_DYNAMIC_LINKER)
- 
+
  #define LINK_OS_LINUX_SPEC "-m elf32ppclinux %{!shared: %{!static: \
    %{rdynamic:-export-dynamic} \
 @@ -894,6 +901,7 @@
@@ -433,9 +433,9 @@ Index: b/gcc/config/sh/linux.h
 --- a/gcc/config/sh/linux.h
 +++ b/gcc/config/sh/linux.h
 @@ -43,7 +43,15 @@
- 
+
  #define TARGET_ASM_FILE_END file_end_indicate_exec_stack
- 
+
 +#if TARGET_BIG_ENDIAN_DEFAULT /* BE */
 +#define MUSL_DYNAMIC_LINKER_E "eb"
 +#else
@@ -445,7 +445,7 @@ Index: b/gcc/config/sh/linux.h
  #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux.so.2"
 +#undef MUSL_DYNAMIC_LINKER
 +#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-sh" MUSL_DYNAMIC_LINKER_E ".so.1"
- 
+
  #undef SUBTARGET_LINK_EMUL_SUFFIX
  #define SUBTARGET_LINK_EMUL_SUFFIX "_linux"
 Index: b/gcc/config.gcc
@@ -454,11 +454,11 @@ Index: b/gcc/config.gcc
 +++ b/gcc/config.gcc
 @@ -550,7 +550,7 @@
  esac
- 
+
  # Common C libraries.
 -tm_defines="$tm_defines LIBC_GLIBC=1 LIBC_UCLIBC=2 LIBC_BIONIC=3"
 +tm_defines="$tm_defines LIBC_GLIBC=1 LIBC_UCLIBC=2 LIBC_BIONIC=3 LIBC_MUSL=4"
- 
+
  # Common parts for widely ported systems.
  case ${target} in
 @@ -653,6 +653,9 @@
@@ -494,7 +494,7 @@ Index: b/gcc/configure
 +    gcc_cv_target_dl_iterate_phdr=yes
 +    ;;
  esac
- 
+
  if test x$gcc_cv_target_dl_iterate_phdr = xyes; then
 Index: b/gcc/configure.ac
 ===================================================================
@@ -545,7 +545,7 @@ Index: b/libgcc/unwind-dw2-fde-dip.c
 @@ -75,6 +75,13 @@
  # define USE_PT_GNU_EH_FRAME
  #endif
- 
+
 +/* For musl libc, TARGET_DL_ITERATE_PHDR gets defined by the configure
 +   script. */
 +#if !defined(inhibit_libc) && defined(HAVE_LD_EH_FRAME_HDR) \
@@ -554,7 +554,7 @@ Index: b/libgcc/unwind-dw2-fde-dip.c
 +#endif
 +
  #if defined(USE_PT_GNU_EH_FRAME)
- 
+
  #include <link.h>
 Index: b/libgomp/config/posix/time.c
 ===================================================================
@@ -563,7 +563,7 @@ Index: b/libgomp/config/posix/time.c
 @@ -28,6 +28,8 @@
     The following implementation uses the most simple POSIX routines.
     If present, POSIX 4 clocks should be used instead.  */
- 
+
 +#define _POSIX_C_SOURCE 199309L /* for clocks */
 +
  #include "libgomp.h"
@@ -574,7 +574,7 @@ Index: b/libitm/config/arm/hwcap.cc
 --- a/libitm/config/arm/hwcap.cc
 +++ b/libitm/config/arm/hwcap.cc
 @@ -40,7 +40,11 @@
- 
+
  #ifdef __linux__
  #include <unistd.h>
 +#ifdef __GLIBC__
@@ -583,7 +583,7 @@ Index: b/libitm/config/arm/hwcap.cc
 +#include <fcntl.h>
 +#endif
  #include <elf.h>
- 
+
  static void __attribute__((constructor))
 Index: b/libitm/config/linux/x86/tls.h
 ===================================================================
@@ -592,7 +592,7 @@ Index: b/libitm/config/linux/x86/tls.h
 @@ -25,16 +25,19 @@
  #ifndef LIBITM_X86_TLS_H
  #define LIBITM_X86_TLS_H 1
- 
+
 -#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 10)
 +#if defined(__GLIBC_PREREQ)
 +#if __GLIBC_PREREQ(2, 10)
@@ -602,21 +602,21 @@ Index: b/libitm/config/linux/x86/tls.h
  #define HAVE_ARCH_GTM_THREAD_DISP 1
  #endif
 +#endif
- 
+
  #include "config/generic/tls.h"
- 
+
 -#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 10)
 +#if defined(__GLIBC_PREREQ)
 +#if __GLIBC_PREREQ(2, 10)
  namespace GTM HIDDEN {
- 
+
  #ifdef __x86_64__
 @@ -101,5 +104,6 @@
- 
+
  } // namespace GTM
  #endif /* >= GLIBC 2.10 */
 +#endif
- 
+
  #endif // LIBITM_X86_TLS_H
 Index: b/libstdc++-v3/configure.host
 ===================================================================
