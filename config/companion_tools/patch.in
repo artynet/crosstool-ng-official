@@ -1,0 +1,26 @@
+# Patch
+
+## help Patch
+
+choice
+    bool
+    prompt "Patch version"
+# Don't remove next line
+# CT_INSERT_VERSION_BELOW
+
+config PATCH_V_2_7_5
+    bool
+    prompt "2.7.5"
+
+config PATCH_V_2_7_4
+    bool
+    prompt "2.7.4"
+
+endchoice
+
+config PATCH_VERSION
+    string
+# Don't remove next line
+# CT_INSERT_VERSION_STRING_BELOW
+    default "2.7.5" if PATCH_V_2_7_5
+    default "2.7.4" if PATCH_V_2_7_4
