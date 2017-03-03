@@ -81,6 +81,12 @@ config BINUTILS_V_2_25_1
     select BINUTILS_2_25_1_or_later
     depends on OBSOLETE
 
+config BINUTILS_V_2_25_0
+    bool
+    prompt "2.25 (OBSOLETE)"
+    select BINUTILS_2_25_0_or_later
+    depends on OBSOLETE
+
 config BINUTILS_LINARO_V_2_25
     bool
     prompt "linaro-2.25.0-2015.01-2 (OBSOLETE)"
@@ -91,6 +97,13 @@ config BINUTILS_LINARO_V_2_25
 config BINUTILS_LINARO_V_2_24
     bool
     prompt "linaro-2.24.0-2014.11-2 (OBSOLETE)"
+    select BINUTILS_2_24_or_later
+    depends on BINUTILS_SHOW_LINARO
+    depends on OBSOLETE
+
+config BINUTILS_LINARO_V_2_24_09
+    bool
+    prompt "linaro-2.24.0-2014.09 (OBSOLETE)"
     select BINUTILS_2_24_or_later
     depends on BINUTILS_SHOW_LINARO
     depends on OBSOLETE
@@ -124,8 +137,10 @@ config BINUTILS_VERSION
     default "2.27" if BINUTILS_V_2_27
     default "2.26" if BINUTILS_V_2_26
     default "2.25.1" if BINUTILS_V_2_25_1
+    default "2.25" if BINUTILS_V_2_25_0
     default "linaro-2.25.0-2015.01-2" if BINUTILS_LINARO_V_2_25
     default "linaro-2.24.0-2014.11-2" if BINUTILS_LINARO_V_2_24
+    default "linaro-2.24.0-2014.09" if BINUTILS_LINARO_V_2_24_09
     default "2.24" if BINUTILS_V_2_24
     default "linaro-2.23.2-2013.10-4" if BINUTILS_LINARO_V_2_23_2
     default "2.23.2" if BINUTILS_V_2_23_2
