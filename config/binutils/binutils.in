@@ -70,6 +70,11 @@ config BINUTILS_V_2_27
     prompt "2.27"
     select BINUTILS_2_27_or_later
 
+config BINUTILS_V_2_26_1
+    bool
+    prompt "2.26.1"
+    select BINUTILS_2_26_1_or_later
+
 config BINUTILS_V_2_26
     bool
     prompt "2.26"
