@@ -898,6 +898,7 @@ CT_GetLinaro() {
     yymm="${linaro_version#*-??}"
     yymm="${yymm%-*}"
     CT_GetFile "${comp}-${version}" \
+        "http://launchpad.net/gcc-linaro/4.8/${linaro_version}/+download" \
         "https://releases.linaro.org/components/toolchain/${comp}-linaro/${linaro_version}" \
         "https://releases.linaro.org/archive/${yymm}/components/toolchain/${comp}-linaro/${base}" \
         "https://releases.linaro.org/archive/${yymm}/components/toolchain/${comp}-linaro"
