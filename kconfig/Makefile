@@ -15,6 +15,13 @@ CFLAGS = -DCONFIG_=\"CT_\" -DPACKAGE="\"crosstool-NG $(VERSION)\"" \
 	 -DGPERF_LEN_TYPE="$(gperf_len_type)"
 LDFLAGS = $(INTL_LIBS)
 
+# add additional cflags and ldflags for macports build
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+CFLAGS += -I/opt/local/include -std=gnu89
+LDFLAGS += -L/opt/local/lib -lintl
+endif
+
 # Compiler flags to use gettext
 ifeq ($(gettext),)
 INTL_CFLAGS = -Wno-format-security -DKBUILD_NO_NLS
