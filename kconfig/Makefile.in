@@ -20,6 +20,13 @@ CFLAGS += $(shell @DPKG_BUILDFLAGS@ --get CPPFLAGS) \
 LDFLAGS += $(shell @DPKG_BUILDFLAGS@ --get LDFLAGS)
 endif
 
+# add additional cflags and ldflags for macports build
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+CFLAGS += -I/opt/local/include -std=gnu89
+LDFLAGS += -L/opt/local/lib -lintl
+endif
+
 # Compiler flags to use gettext
 ifeq ($(gettext),)
 INTL_CFLAGS = -Wno-format-security -DKBUILD_NO_NLS
