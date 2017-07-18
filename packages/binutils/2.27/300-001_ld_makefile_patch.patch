@@ -1,8 +1,6 @@
-diff --git a/ld/Makefile.am b/ld/Makefile.am
-index 9575f1f..84df0bf 100644
 --- a/ld/Makefile.am
 +++ b/ld/Makefile.am
-@@ -54,7 +54,7 @@ endif
+@@ -57,7 +57,7 @@ endif
  # We put the scripts in the directory $(scriptdir)/ldscripts.
  # We can't put the scripts in $(datadir) because the SEARCH_DIR
  # directives need to be different for native and cross linkers.
@@ -11,11 +9,9 @@ index 9575f1f..84df0bf 100644
  
  EMUL = @EMUL@
  EMULATION_OFILES = @EMULATION_OFILES@
-diff --git a/ld/Makefile.in b/ld/Makefile.in
-index 9f56ca1..272860f 100644
 --- a/ld/Makefile.in
 +++ b/ld/Makefile.in
-@@ -388,7 +388,7 @@ AM_CFLAGS = $(WARN_CFLAGS)
+@@ -451,7 +451,7 @@ AM_CFLAGS = $(WARN_CFLAGS) $(ELF_CLFAGS)
  # We put the scripts in the directory $(scriptdir)/ldscripts.
  # We can't put the scripts in $(datadir) because the SEARCH_DIR
  # directives need to be different for native and cross linkers.
