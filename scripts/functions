@@ -1746,6 +1746,7 @@ CT_Mirrors()
         echo "https://releases.linaro.org/components/toolchain/${project}-linaro/${version}"
         echo "https://releases.linaro.org/archive/${yymm}/components/toolchain/${project}-linaro/${base}"
         echo "https://releases.linaro.org/archive/${yymm}/components/toolchain/${project}-linaro"
+        echo "https://launchpad.net/${project}-linaro/${base}/${base}-${yymm}/+download/"
         ;;
     kernel.org)
         # TBD move to linux.sh and dtc.sh?
