@@ -1275,7 +1275,7 @@ CT_DoSaveState() {
         done | ${sed} 's/^declare /declare -g /'
         echo "builtin unset ${CT_ENVVAR_UNSET}"
     } >"${state_dir}/env.sh"
-    
+
     # Save .config to check it hasn't changed when resuming.
     CT_DoExecLog STATE cp ".config" "${state_dir}/config"
 
@@ -1679,6 +1679,7 @@ CT_Mirrors()
         echo "https://releases.linaro.org/components/toolchain/${project}-linaro/${version}"
         echo "https://releases.linaro.org/archive/${yymm}/components/toolchain/${project}-linaro/${base}"
         echo "https://releases.linaro.org/archive/${yymm}/components/toolchain/${project}-linaro"
+        echo "https://launchpad.net/${project}-linaro/${base}/${base}-${yymm}/+download/"
         ;;
     kernel.org)
         # TBD move to linux.sh?
@@ -1750,7 +1751,7 @@ CT_Download_cvs()
     fi
 }
 
-# Find the most recent version from Subversion. 
+# Find the most recent version from Subversion.
 CT_GetVersion_svn()
 {
     devel_branch="${devel_branch:-/trunk}"
@@ -1804,7 +1805,7 @@ CT_Download_hg()
     fi
     if [ "${devel_revision}" = "to.be.determined" ]; then
         # Report what we found out (as common message lacks the revision)
-        devel_revision=`hg identify -i` 
+        devel_revision=`hg identify -i`
         unique_id="${devel_revision}"
         CT_DoLog EXTRA "Retrieved revision ${devel_revision}"
     else
@@ -2130,7 +2131,7 @@ CT_DoExtractPatch()
                     done
                 fi
             done
- 
+
             # TBD create meta-package for config.sub/config.guess with replacement script
             if [ "${CT_OVERRIDE_CONFIG_GUESS_SUB}" = "y" ]; then
                 CT_DoLog ALL "Overiding config.guess and config.sub"
