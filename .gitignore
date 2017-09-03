@@ -4,9 +4,9 @@ autom4te.cache
 config.log
 config.status
 /Makefile
-*ct-ng*
-!ct-ng.comp
-!ct-ng.in
+*ct-ng-lede*
+!ct-ng-lede.comp
+!ct-ng-lede.in
 paths.*
 !paths.in
 config/configure.in

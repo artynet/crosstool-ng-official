@@ -94,7 +94,7 @@ export CPU_COUNT       := @CPU_COUNT@
 MAN_SECTION := 1
 MAN_SUBDIR := /man$(MAN_SECTION)
 
-PROG_NAME := $(shell echo 'ct-ng' |$(sed) -r -e '$(PROG_SED)' )
+PROG_NAME := $(shell echo 'ct-ng-lede' |$(sed) -r -e '$(PROG_SED)' )
 
 ###############################################################################
 # Sanity checks
@@ -200,7 +200,7 @@ endef
 docs/$(PROG_NAME).1: docs/ct-ng.1.in Makefile
 	$(call sed_it)
 
-$(PROG_NAME): ct-ng.in Makefile
+$(PROG_NAME): ct-ng-lede.in Makefile
 	$(call sed_it)
 	$(call __silent,CHMOD,$@)chmod 755 $@
 
