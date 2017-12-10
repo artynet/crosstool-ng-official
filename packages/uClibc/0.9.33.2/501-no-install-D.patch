@@ -1,9 +1,5 @@
----
- utils/Makefile.in |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
---- a/utils/Makefile.in
-+++ b/utils/Makefile.in
+--- uClibc-0.9.33.2.orig/utils/Makefile.in	2012-05-15 00:20:09.000000000 -0700
++++ uClibc-0.9.33.2/utils/Makefile.in	2017-03-01 12:17:56.000000000 -0800
 @@ -118,15 +118,22 @@
  install-y += utils_install
  

@@ -15,12 +15,14 @@ preventing to get the actual value of the LD_LIBRARY_PATH.
 Signed-off-by: Filippo Arcidiacono <filippo.arcidiacono@st.com>
 Signed-off-by: Carmelo Amoroso <carmelo.amoroso@st.com>
 ---
- ldso/libdl/libdl.c |   11 +++++++++--
+ ldso/libdl/libdl.c | 11 +++++++++--
  1 file changed, 9 insertions(+), 2 deletions(-)
 
+diff --git a/ldso/libdl/libdl.c b/ldso/libdl/libdl.c
+index 4630a59..3a78696 100644
 --- a/ldso/libdl/libdl.c
 +++ b/ldso/libdl/libdl.c
-@@ -377,7 +377,7 @@
+@@ -374,7 +374,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
  	if (getenv("LD_BIND_NOW"))
  		now_flag = RTLD_NOW;
  
@@ -29,7 +31,7 @@ Signed-off-by: Carmelo Amoroso <carmelo.amoroso@st.com>
  	/* When statically linked, the _dl_library_path is not yet initialized */
  	_dl_library_path = getenv("LD_LIBRARY_PATH");
  #endif
-@@ -544,11 +544,18 @@
+@@ -541,11 +541,18 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
  	 * to the GOT tables.  We need to do this in reverse order so that COPY
  	 * directives work correctly */
  
@@ -49,3 +51,6 @@ Signed-off-by: Carmelo Amoroso <carmelo.amoroso@st.com>
  #ifdef __mips__
  	/*
  	 * Relocation of the GOT entries for MIPS have to be done
+-- 
+cgit v0.12
+
