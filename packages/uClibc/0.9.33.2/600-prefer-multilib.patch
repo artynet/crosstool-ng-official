@@ -1,11 +1,7 @@
----
- ldso/ldso/Makefile.in |    5 +++++
- ldso/ldso/dl-elf.c    |   13 +++++++++++++
- 2 files changed, 18 insertions(+)
-
---- a/ldso/ldso/dl-elf.c
-+++ b/ldso/ldso/dl-elf.c
-@@ -284,6 +284,19 @@
+diff -urpN uClibc-0.9.33.2.orig/ldso/ldso/dl-elf.c uClibc-0.9.33.2/ldso/ldso/dl-elf.c
+--- uClibc-0.9.33.2.orig/ldso/ldso/dl-elf.c	2017-03-14 23:40:57.527113741 -0700
++++ uClibc-0.9.33.2/ldso/ldso/dl-elf.c	2017-03-14 23:42:19.308005691 -0700
+@@ -284,6 +284,19 @@ struct elf_resolve *_dl_load_shared_libr
  		}
  	}
  #endif
@@ -25,9 +21,10 @@
  #if defined SHARED && defined __LDSO_SEARCH_INTERP_PATH__
  	/* Look for libraries wherever the shared library loader
  	 * was installed */
---- a/ldso/ldso/Makefile.in
-+++ b/ldso/ldso/Makefile.in
-@@ -30,6 +30,11 @@
+diff -urpN uClibc-0.9.33.2.orig/ldso/ldso/Makefile.in uClibc-0.9.33.2/ldso/ldso/Makefile.in
+--- uClibc-0.9.33.2.orig/ldso/ldso/Makefile.in	2017-03-14 23:40:57.527113741 -0700
++++ uClibc-0.9.33.2/ldso/ldso/Makefile.in	2017-03-14 23:41:45.215634328 -0700
+@@ -30,6 +30,11 @@ CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CF
  
  CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\" $(CFLAGS-ldso)
  
