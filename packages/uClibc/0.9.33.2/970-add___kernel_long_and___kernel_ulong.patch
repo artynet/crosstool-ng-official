@@ -1,7 +1,7 @@
-From 7fef6b983456e4c529a5239ea90715050e6f4452 Mon Sep 17 00:00:00 2001
+From 6a76edddaa62ff06f178143b582167734cb55c18 Mon Sep 17 00:00:00 2001
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Date: Mon, 1 Oct 2012 18:12:54 +1300
-Subject: [PATCH 4/8] libc/sysdeps: add __kernel_long and __kernel_ulong
+Date: Mon, 01 Oct 2012 05:12:54 +0000
+Subject: libc/sysdeps: add __kernel_long and __kernel_ulong
 
 Linux 3.4 added __kernel_long_t and __kernel_ulong_t and various
 exported header files were updated to use these new types. Add the
@@ -49,36 +49,10 @@ I can break this up per arch or per maintainer if requested.
  libc/sysdeps/linux/xtensa/bits/kernel_types.h     |    2 ++
  22 files changed, 50 insertions(+)
 Signed-off-by: Bernhard Reutner-Fischer <rep.dot.nop@gmail.com>
-Signed-off-by: Gustavo Zacarias <gustavo@zacarias.com.ar>
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
- libc/sysdeps/linux/alpha/bits/kernel_types.h      |    2 ++
- libc/sysdeps/linux/arm/bits/kernel_types.h        |    2 ++
- libc/sysdeps/linux/avr32/bits/kernel_types.h      |    2 ++
- libc/sysdeps/linux/bfin/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/c6x/bits/kernel_types.h        |    2 ++
- libc/sysdeps/linux/cris/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/e1/bits/kernel_types.h         |    2 ++
- libc/sysdeps/linux/h8300/bits/kernel_types.h      |    2 ++
- libc/sysdeps/linux/hppa/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/i386/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/ia64/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/m68k/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/microblaze/bits/kernel_types.h |    2 ++
- libc/sysdeps/linux/mips/bits/kernel_types.h       |    4 ++++
- libc/sysdeps/linux/nios2/bits/kernel_types.h      |    2 ++
- libc/sysdeps/linux/powerpc/bits/kernel_types.h    |    4 ++++
- libc/sysdeps/linux/sh/bits/kernel_types.h         |    2 ++
- libc/sysdeps/linux/sh64/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/sparc/bits/kernel_types.h      |    4 ++++
- libc/sysdeps/linux/v850/bits/kernel_types.h       |    2 ++
- libc/sysdeps/linux/x86_64/bits/kernel_types.h     |    2 ++
- libc/sysdeps/linux/xtensa/bits/kernel_types.h     |    2 ++
- 22 files changed, 50 insertions(+)
-
 --- a/libc/sysdeps/linux/alpha/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/alpha/bits/kernel_types.h
-@@ -33,6 +33,8 @@
+@@ -33,6 +33,8 @@ typedef __kernel_gid_t __kernel_old_gid_
  typedef __kernel_uid_t __kernel_uid32_t;
  typedef __kernel_gid_t __kernel_gid32_t;
  typedef __kernel_dev_t __kernel_old_dev_t;
@@ -89,7 +63,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  	int val[2];
 --- a/libc/sysdeps/linux/arm/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/arm/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned short		__kernel_old_uid
  typedef unsigned short		__kernel_old_gid_t;
  typedef long long		__kernel_loff_t;
  typedef __kernel_dev_t		__kernel_old_dev_t;
@@ -100,7 +74,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/avr32/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/avr32/bits/kernel_types.h
-@@ -39,6 +39,8 @@
+@@ -39,6 +39,8 @@ typedef unsigned int		__kernel_gid32_t;
  typedef unsigned short		__kernel_old_uid_t;
  typedef unsigned short		__kernel_old_gid_t;
  typedef unsigned short		__kernel_old_dev_t;
@@ -111,7 +85,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef long long		__kernel_loff_t;
 --- a/libc/sysdeps/linux/bfin/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/bfin/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned short	__kernel_old_uid_
  typedef unsigned short	__kernel_old_gid_t;
  typedef long long	__kernel_loff_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -122,7 +96,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/c6x/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/c6x/bits/kernel_types.h
-@@ -22,6 +22,8 @@
+@@ -22,6 +22,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned int	__kernel_old_uid_t;
  typedef unsigned int	__kernel_old_gid_t;
  typedef unsigned int	__kernel_old_dev_t;
@@ -133,7 +107,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef int		__kernel_ptrdiff_t;
 --- a/libc/sysdeps/linux/cris/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/cris/bits/kernel_types.h
-@@ -28,6 +28,8 @@
+@@ -28,6 +28,8 @@ typedef unsigned int    __kernel_gid32_t
  typedef unsigned short  __kernel_old_uid_t;
  typedef unsigned short  __kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -144,7 +118,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef long long	__kernel_loff_t;
 --- a/libc/sysdeps/linux/e1/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/e1/bits/kernel_types.h
-@@ -31,6 +31,8 @@
+@@ -31,6 +31,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -155,7 +129,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  /*
 --- a/libc/sysdeps/linux/h8300/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/h8300/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned short	__kernel_old_uid_
  typedef unsigned short	__kernel_old_gid_t;
  typedef long long	__kernel_loff_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -166,7 +140,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/hppa/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/hppa/bits/kernel_types.h
-@@ -45,6 +45,8 @@
+@@ -45,6 +45,8 @@ typedef long long		__kernel_off64_t;
  typedef unsigned long long	__kernel_ino64_t;
  
  typedef unsigned int		__kernel_old_dev_t;
@@ -177,7 +151,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/i386/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/i386/bits/kernel_types.h
-@@ -40,6 +40,8 @@
+@@ -40,6 +40,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -188,7 +162,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef struct {
 --- a/libc/sysdeps/linux/ia64/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/ia64/bits/kernel_types.h
-@@ -52,5 +52,7 @@
+@@ -52,5 +52,7 @@ typedef __kernel_gid_t __kernel_gid32_t;
  
  typedef unsigned int	__kernel_dev_t;
  typedef unsigned int	__kernel_old_dev_t;
@@ -198,7 +172,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #endif /* _ASM_IA64_POSIX_TYPES_H */
 --- a/libc/sysdeps/linux/m68k/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/m68k/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned short	__kernel_old_uid_
  typedef unsigned short	__kernel_old_gid_t;
  typedef long long	__kernel_loff_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -209,7 +183,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/microblaze/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/microblaze/bits/kernel_types.h
-@@ -44,6 +44,8 @@
+@@ -44,6 +44,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned int	__kernel_old_uid_t;
  typedef unsigned int	__kernel_old_gid_t;
  typedef unsigned int	__kernel_old_dev_t;
@@ -220,7 +194,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef long long	__kernel_loff_t;
 --- a/libc/sysdeps/linux/mips/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/mips/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef int		__kernel_gid32_t;
  typedef __kernel_uid_t	__kernel_old_uid_t;
  typedef __kernel_gid_t	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -229,7 +203,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef long long      __kernel_loff_t;
  #else
  typedef unsigned int	__kernel_dev_t;
-@@ -68,6 +70,8 @@
+@@ -68,6 +70,8 @@ typedef int		__kernel_gid32_t;
  typedef __kernel_uid_t	__kernel_old_uid_t;
  typedef __kernel_gid_t	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -240,7 +214,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  
 --- a/libc/sysdeps/linux/nios2/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/nios2/bits/kernel_types.h
-@@ -31,6 +31,8 @@
+@@ -31,6 +31,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef unsigned short	__kernel_old_dev_t;
@@ -251,7 +225,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef struct {
 --- a/libc/sysdeps/linux/powerpc/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/powerpc/bits/kernel_types.h
-@@ -36,6 +36,8 @@
+@@ -36,6 +36,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned int	__kernel_old_uid_t;
  typedef unsigned int	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -260,7 +234,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #else
  typedef unsigned int	__kernel_dev_t;
  typedef unsigned int	__kernel_ino_t;
-@@ -61,6 +63,8 @@
+@@ -61,6 +63,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned int	__kernel_old_uid_t;
  typedef unsigned int	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -271,7 +245,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  
 --- a/libc/sysdeps/linux/sh/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/sh/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -282,7 +256,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef struct {
 --- a/libc/sysdeps/linux/sh64/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/sh64/bits/kernel_types.h
-@@ -43,6 +43,8 @@
+@@ -43,6 +43,8 @@ typedef unsigned int    __kernel_gid32_t
  typedef unsigned short  __kernel_old_uid_t;
  typedef unsigned short  __kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -293,7 +267,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef struct {
 --- a/libc/sysdeps/linux/sparc/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/sparc/bits/kernel_types.h
-@@ -32,6 +32,8 @@
+@@ -32,6 +32,8 @@ typedef unsigned short	       __kernel_g
  typedef __kernel_uid_t 	       __kernel_old_uid_t;
  typedef __kernel_gid_t         __kernel_old_gid_t;
  typedef __kernel_dev_t         __kernel_old_dev_t;
@@ -302,7 +276,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef __kernel_uid_t	       __kernel_uid32_t;
  typedef __kernel_gid_t	       __kernel_gid32_t;
  typedef int		       __kernel_suseconds_t;
-@@ -62,6 +64,8 @@
+@@ -62,6 +64,8 @@ typedef unsigned int	       __kernel_gid
  typedef unsigned short	       __kernel_old_uid_t;
  typedef unsigned short	       __kernel_old_gid_t;
  typedef __kernel_dev_t         __kernel_old_dev_t;
@@ -313,7 +287,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  
 --- a/libc/sysdeps/linux/v850/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/v850/bits/kernel_types.h
-@@ -41,6 +41,8 @@
+@@ -41,6 +41,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -324,7 +298,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  #ifdef __USE_ALL
 --- a/libc/sysdeps/linux/x86_64/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/x86_64/bits/kernel_types.h
-@@ -40,6 +40,8 @@
+@@ -40,6 +40,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef __kernel_dev_t	__kernel_old_dev_t;
@@ -335,7 +309,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  typedef struct {
 --- a/libc/sysdeps/linux/xtensa/bits/kernel_types.h
 +++ b/libc/sysdeps/linux/xtensa/bits/kernel_types.h
-@@ -33,6 +33,8 @@
+@@ -33,6 +33,8 @@ typedef unsigned int	__kernel_gid32_t;
  typedef unsigned short	__kernel_old_uid_t;
  typedef unsigned short	__kernel_old_gid_t;
  typedef unsigned short	__kernel_old_dev_t;
