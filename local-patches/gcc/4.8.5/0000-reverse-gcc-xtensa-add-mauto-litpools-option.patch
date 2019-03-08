@@ -1,0 +1,3 @@
+Unstaged changes after reset:
+M	local-patches/gcc/4.8.5/0000-reverse-gcc-xtensa-add-mauto-litpools-option-.patch
+D	local-patches/gcc/4.8.5/0000-revert-870-patch-for-gcc-48.patch
