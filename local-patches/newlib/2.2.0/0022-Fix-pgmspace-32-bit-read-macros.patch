@@ -1,0 +1,59 @@
+From 5498702d9eae41b8d9ae1985186f9d3af4459f1b Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Mon, 3 Dec 2018 09:07:22 -0800
+Subject: [PATCH 22/27] Fix pgmspace 32-bit read macros
+
+Looks like the pgm_read_(32bit) defines were not used in the main core, and
+they contained syntax errors when invoked due to some bad bracket/parens.
+
+Fix the macros
+---
+ newlib/libc/include/sys/pgmspace.h    | 4 ++--
+ newlib/libc/sys/xtensa/sys/pgmspace.h | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/newlib/libc/include/sys/pgmspace.h b/newlib/libc/include/sys/pgmspace.h
+index 625eff155..b9c98d17b 100644
+--- a/newlib/libc/include/sys/pgmspace.h
++++ b/newlib/libc/include/sys/pgmspace.h
+@@ -31,13 +31,13 @@
+     #define pgm_read_word(addr)             (*reinterpret_cast<const uint16_t*>(addr))
+     #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*>(addr))
+     #define pgm_read_float(addr)            (*reinterpret_cast<const float>(addr))
+-    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void const *>(addr))
++    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void*>(addr))
+ #else
+     #define pgm_read_byte(addr)             (*(const uint8_t*)(addr))
+     #define pgm_read_word(addr)             (*(const uint16_t*)(addr))
+     #define pgm_read_dword(addr)            (*(const uint32_t*)(addr))
+     #define pgm_read_float(addr)            (*(const float)(addr))
+-    #define pgm_read_ptr(addr)              (*(const void const *)(addr))
++    #define pgm_read_ptr(addr)              (*(const void*)(addr))
+ #endif
+ 
+ #define pgm_read_byte_near(addr)        pgm_read_byte(addr)
+diff --git a/newlib/libc/sys/xtensa/sys/pgmspace.h b/newlib/libc/sys/xtensa/sys/pgmspace.h
+index bb517366b..ba46d8468 100644
+--- a/newlib/libc/sys/xtensa/sys/pgmspace.h
++++ b/newlib/libc/sys/xtensa/sys/pgmspace.h
+@@ -71,13 +71,13 @@ static inline uint16_t pgm_read_word_inlined(const void* addr) {
+ #define pgm_read_byte(addr)             pgm_read_byte_inlined(addr)
+ #define pgm_read_word(addr)             pgm_read_word_inlined(addr)
+ #ifdef __cplusplus
+-    #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*)(addr)>
+-    #define pgm_read_float(addr)            (*reinterpret_cast<const float)(addr)>
+-    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void const *)(addr)>
++    #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*>(addr))
++    #define pgm_read_float(addr)            (*reinterpret_cast<const float>(addr))
++    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void*>(addr))
+ #else
+     #define pgm_read_dword(addr)            (*(const uint32_t*)(addr))
+     #define pgm_read_float(addr)            (*(const float)(addr))
+-    #define pgm_read_ptr(addr)              (*(const void const *)(addr))
++    #define pgm_read_ptr(addr)              (*(const void*)(addr))
+ #endif
+ 
+ #define pgm_read_byte_near(addr)        pgm_read_byte(addr)
+-- 
+2.21.0
+

@@ -1,0 +1,101 @@
+From 449c750d3328c35fc5c4110dd9e0da0d64476c40 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Mon, 29 Oct 2018 14:49:21 -0700
+Subject: [PATCH 18/27] Fix strlen_P and strcpy_P edge cases
+
+Ran the included test suite on ESP8266 tstring.c with the following defines:
+ #define MAX_1 50
+ #define memcmp memcmp_P
+ #define memcpy memcpy_P
+ #define memmem memmem_P
+ #define memchr memchr_P
+ #define strcat strcat_P
+ #define strncat strncat_P
+ #define strcpy strcpy_P
+ #define strlen strlen_P
+ #define strnlen strnlen_P
+ #define strcmp strcmp_P
+ #define strncmp strncmp_P
+
+Uncovered edge case and return value problems in the optimized versions of
+the strnlen_P and strncpy_P functions.  Corrected.
+---
+ newlib/libc/sys/xtensa/string_pgmspace.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/string_pgmspace.c b/newlib/libc/sys/xtensa/string_pgmspace.c
+index 144cadd95..8d687f620 100644
+--- a/newlib/libc/sys/xtensa/string_pgmspace.c
++++ b/newlib/libc/sys/xtensa/string_pgmspace.c
+@@ -32,19 +32,21 @@
+ 
+ size_t strnlen_P(PGM_P s, size_t size)
+ {
+-    const char* cp;
++    const char *cp = s;
+     const uint32_t *pmem;
+     char c = 0;
+ 
+     // Take care of any misaligned starting data
+-    for (cp = s; 0 != ((uint32_t)cp & 0x3) && size != 0 ; cp++, size--, s++) {
++    while ( (size > 0) && ((uint32_t)cp & 0x3) ) {
+         c = pgm_read_byte(cp);
+         if (!c) goto done;
++        size--;
++        cp++;
+     }
+ 
+     // We didn't find the end in the initial misaligned bits
+     // Now try it 32-bits at a time while possible
+-    pmem = (const uint32_t*)s;
++    pmem = (const uint32_t*)cp;
+     while (size > 3) {
+       uint32_t w = *pmem;
+       if (0 == (w & 0xff)) {
+@@ -71,9 +73,12 @@ size_t strnlen_P(PGM_P s, size_t size)
+     }
+ 
+     // Take care of any straggling bytes
+-    for (cp = (const char *)pmem; 0 != ((uint32_t)cp & 0x3) && size != 0 ; cp++, size--) {
++    cp = (const char *)pmem;
++    while ( size > 0 ) {
+         c = pgm_read_byte(cp);
+         if (!c) goto done;
++        size--;
++        cp++;
+     }
+ 
+ done:
+@@ -228,16 +233,16 @@ char* strncpy_P(char* dest, PGM_P src, size_t size)
+         const uint32_t *lSrc = (const uint32_t*)src;
+         while (size >= 4) {
+             register uint32_t p = *(lSrc++);
+-            *dest++ = p & 0xff;
++            *write++ = p & 0xff;
+             if (p&0xff) {
+                 p = p >> 8;
+-                *dest++ = p & 0xff;
++                *write++ = p & 0xff;
+                 if (p&0xff) {
+                     p = p >> 8;
+-                    *dest++ = p & 0xff;
++                    *write++ = p & 0xff;
+                     if (p&0xff) {
+                         p = p >> 8;
+-                        *dest++ = p & 0xff;
++                        *write++ = p & 0xff;
+                     } else break;
+                 } else break;
+             } else break;
+@@ -245,7 +250,7 @@ char* strncpy_P(char* dest, PGM_P src, size_t size)
+         }
+         // Let default byte-by-byte finish the work
+         read = (const char *) lSrc;
+-        ch = *(dest-1);
++        ch = *(write-1);
+     }
+ 
+     while (size > 0 && ch != '\0')
+-- 
+2.21.0
+

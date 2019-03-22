@@ -1,0 +1,83 @@
+From 7fafd37df2f715bbb4955a1062d5c4dc587b2a7f Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Thu, 24 Jan 2019 13:06:21 -0800
+Subject: [PATCH 26/27] Add unaligned support to pgm_read_* macros
+
+Make the pgm_read_word and _dword macros support reading unaligned
+locations, like in Arduino of old.  Expose two sets of pgm_read_*
+macros:  pgm_read_*_unaligned and pgm_read_*_aligned.  If user needs speed
+and space savings, they can use pgm_read_*_aligned macros.
+---
+ newlib/libc/sys/xtensa/sys/pgmspace.h | 54 +++++++++++++++++++++++----
+ 1 file changed, 46 insertions(+), 8 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/sys/pgmspace.h b/newlib/libc/sys/xtensa/sys/pgmspace.h
+index 26709cbf8..f0f5b64fe 100644
+--- a/newlib/libc/sys/xtensa/sys/pgmspace.h
++++ b/newlib/libc/sys/xtensa/sys/pgmspace.h
+@@ -68,16 +68,54 @@ static inline uint16_t pgm_read_word_inlined(const void* addr) {
+   return (uint16_t) res;    /* This masks the lower half-word from the returned word */
+ }
+ 
+-#define pgm_read_byte(addr)             pgm_read_byte_inlined(addr)
+-#define pgm_read_word(addr)             pgm_read_word_inlined(addr)
++
++
++#define pgm_read_byte(addr)                pgm_read_byte_inlined(addr)
++#define pgm_read_word_aligned(addr)        pgm_read_word_inlined(addr)
+ #ifdef __cplusplus
+-    #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*>(addr))
+-    #define pgm_read_float(addr)            (*reinterpret_cast<const float*>(addr))
+-    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void*>(addr))
++    #define pgm_read_dword_aligned(addr)   (*reinterpret_cast<const uint32_t*>(addr))
++    #define pgm_read_float_aligned(addr)   (*reinterpret_cast<const float*>(addr))
++    #define pgm_read_ptr_aligned(addr)     (*reinterpret_cast<const void*>(addr))
++#else
++    #define pgm_read_dword_aligned(addr)   (*(const uint32_t*)(addr))
++    #define pgm_read_float_aligned(addr)   (*(const float*)(addr))
++    #define pgm_read_ptr_aligned(addr)     (*(const void*)(addr))
++#endif
++
++__attribute__((optimize("-O3"), always_inline)) static inline uint32_t pgm_read_dword_unaligned(const void *addr) {
++    if (!(((int)addr)&3)) return *(const uint32_t *)addr;
++    int off = (((int)addr) & 3) << 3;
++    const uint32_t *p = (const uint32_t *)((int)addr & (~3));
++    uint32_t a = *p++;
++    uint32_t b = *p;
++    return (a>>off) | (b <<(32-off));
++}
++
++__attribute__((optimize("-O3"), always_inline)) static inline float pgm_read_float_unaligned(const void *addr) {
++    return (float)pgm_read_dword_unaligned(addr);
++}
++
++__attribute__((optimize("-O3"), always_inline)) static inline void *pgm_read_ptr_unaligned(const void *addr) {
++    return (void *)pgm_read_dword_unaligned(addr);
++}
++
++__attribute__((optimize("-O3"), always_inline)) static inline uint16_t pgm_read_word_unaligned(const void *addr) {
++    return pgm_read_dword_unaligned(addr) & 0xffff;
++}
++
++
++// Allow manual selection of _aligned or _unaligned, but default to _unaligned for Arduino compatibility
++#define PGM_READ_UNALIGNED_DEFAULT
++#ifdef PGM_READ_UNALIGNED_DEFAULT
++    #define pgm_read_word(a)   pgm_read_word_unaligned(a)
++    #define pgm_read_dword(a)  pgm_read_dword_unaligned(a)
++    #define pgm_read_float(a)  pgm_read_float_unaligned(a)
++    #define pgm_read_ptr(a)    pgm_read_ptr_unaligned(a)
+ #else
+-    #define pgm_read_dword(addr)            (*(const uint32_t*)(addr))
+-    #define pgm_read_float(addr)            (*(const float*)(addr))
+-    #define pgm_read_ptr(addr)              (*(const void*)(addr))
++    #define pgm_read_word(a)   pgm_read_word_aligned(a)
++    #define pgm_read_dword(a)  pgm_read_dword_aligned(a)
++    #define pgm_read_float(a)  pgm_read_float_aligned(a)
++    #define pgm_read_ptr(a)    pgm_read_ptr_aligned(a)
+ #endif
+ 
+ #define pgm_read_byte_near(addr)        pgm_read_byte(addr)
+-- 
+2.21.0
+
