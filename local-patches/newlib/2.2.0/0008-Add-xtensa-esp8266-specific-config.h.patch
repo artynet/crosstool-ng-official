@@ -1,0 +1,63 @@
+From 312c7d41a510a009c951b509cc4e0455b038fb3b Mon Sep 17 00:00:00 2001
+From: Angus Gratton <gus@projectgus.com>
+Date: Tue, 6 Oct 2015 17:27:30 +1100
+Subject: [PATCH 08/27] Add xtensa esp8266-specific config.h
+
+Sets REENT_SMALL and reduces default stdio buffers from 1024 to 128 bytes
+---
+ newlib/libc/sys/xtensa/include/config.h | 43 +++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+ create mode 100644 newlib/libc/sys/xtensa/include/config.h
+
+diff --git a/newlib/libc/sys/xtensa/include/config.h b/newlib/libc/sys/xtensa/include/config.h
+new file mode 100644
+index 000000000..6159c6f5e
+--- /dev/null
++++ b/newlib/libc/sys/xtensa/include/config.h
+@@ -0,0 +1,43 @@
++#ifndef __SYS_CONFIG_H__
++#define __SYS_CONFIG_H__
++
++#include <machine/ieeefp.h>  /* floating point macros */
++#include <sys/features.h>	/* POSIX defs */
++
++/*************************************************************************
++ esp8266-specific xtensa stuff
++ *************************************************************************/
++
++#ifndef _REENT_SMALL
++#define _REENT_SMALL
++#endif
++
++/* esp8266 hardware FIFO buffers are 128 bytes */
++#define __BUFSIZ__ 128
++
++/*************************************************************************
++ end of esp8266-specific stuff
++ *************************************************************************/
++
++#ifndef __EXPORT
++#define __EXPORT
++#endif
++
++#ifndef __IMPORT
++#define __IMPORT
++#endif
++
++/* Define return type of read/write routines.  In POSIX, the return type
++   for read()/write() is "ssize_t" but legacy newlib code has been using
++   "int" for some time.  If not specified, "int" is defaulted.  */
++#ifndef _READ_WRITE_RETURN_TYPE
++#define _READ_WRITE_RETURN_TYPE int
++#endif
++/* Define `count' parameter of read/write routines.  In POSIX, the `count'
++   parameter is "size_t" but legacy newlib code has been using "int" for some
++   time.  If not specified, "int" is defaulted.  */
++#ifndef _READ_WRITE_BUFSIZE_TYPE
++#define _READ_WRITE_BUFSIZE_TYPE int
++#endif
++
++#endif /* __SYS_CONFIG_H__ */
+-- 
+2.21.0
+
