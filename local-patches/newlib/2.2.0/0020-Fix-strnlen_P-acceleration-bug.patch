@@ -1,0 +1,59 @@
+From 347260af117b4177389e69fd4d04169b11d87a97 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Tue, 30 Oct 2018 15:44:13 -0700
+Subject: [PATCH 20/27] Fix strnlen_P acceleration bug
+
+---
+ newlib/libc/sys/xtensa/string_pgmspace.c | 34 ++++++++++--------------
+ 1 file changed, 14 insertions(+), 20 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/string_pgmspace.c b/newlib/libc/sys/xtensa/string_pgmspace.c
+index ed4106ce9..7e6f0eb32 100644
+--- a/newlib/libc/sys/xtensa/string_pgmspace.c
++++ b/newlib/libc/sys/xtensa/string_pgmspace.c
+@@ -229,28 +229,22 @@ char* strncpy_P(char* dest, PGM_P src, size_t size)
+     // Optimize for the case when the src starts at 4-byte alignment
+     // In this case we can copy ~4x faster by simply reading and writing
+     // 32-bit values until there's less than a whole word left to write
+-    if ( 0 == (((uint32_t)src) & 0x3) ) {
+-        const uint32_t *lSrc = (const uint32_t*)src;
++    if (!((((uint32_t)src)|(uint32_t)dest) & 0x3)) {
+         while (size >= 4) {
+-            register uint32_t p = *(lSrc++);
+-            *write++ = p & 0xff;
+-            if (p&0xff) {
+-                p = p >> 8;
+-                *write++ = p & 0xff;
+-                if (p&0xff) {
+-                    p = p >> 8;
+-                    *write++ = p & 0xff;
+-                    if (p&0xff) {
+-                        p = p >> 8;
+-                        *write++ = p & 0xff;
+-                    } else break;
+-                } else break;
+-            } else break;
+-            size -= 4;
++            uint32_t p = *(uint32_t*)read;
++            // Bit of magic to check if any bytes are 0 in the word, adapted from:
++            // https://jameshfisher.com/2017/01/24/bitwise-check-for-zero-byte.html
++            int hasZero = (p - 0x01010101) & ~p & 0x80808080;
++            if (hasZero) {
++                // Don't handle the partial word case here, use standard flow
++                break;
++            } else {
++                *(uint32_t *)write = p;
++                read += 4;
++                write += 4;
++                size -= 4;
++            }
+         }
+-        // Let default byte-by-byte finish the work
+-        read = (const char *) lSrc;
+-        ch = *(write-1);
+     }
+ 
+     while (size > 0 && ch != '\0')
+-- 
+2.21.0
+

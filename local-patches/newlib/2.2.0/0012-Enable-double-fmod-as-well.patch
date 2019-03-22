@@ -1,0 +1,25 @@
+From e6743695d217592a298c51ecb410cfab1dcdc167 Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <igrokhotkov@gmail.com>
+Date: Tue, 19 Apr 2016 12:44:28 +0300
+Subject: [PATCH 12/27] Enable double fmod as well
+
+---
+ newlib/libm/math/e_fmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/newlib/libm/math/e_fmod.c b/newlib/libm/math/e_fmod.c
+index 57ad26412..a5d6bc473 100644
+--- a/newlib/libm/math/e_fmod.c
++++ b/newlib/libm/math/e_fmod.c
+@@ -18,7 +18,7 @@
+ /* __ieee754_remainder is provided by libgcc and presumably is faster
+    then original implementation */
+ 
+-#if 1
++#if 0
+ 
+ extern double __ieee754_remainder(double x, double y);
+ 
+-- 
+2.21.0
+

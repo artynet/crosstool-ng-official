@@ -1,0 +1,26 @@
+From ae10be336a8c7c5161a2715e9e900d06f0cde6d9 Mon Sep 17 00:00:00 2001
+From: Angus Gratton <gus@projectgus.com>
+Date: Tue, 6 Oct 2015 17:27:30 +1100
+Subject: [PATCH 09/27] Shrink default xtensa fd buffer size to 128 bytes
+
+Otherwise default is 1024 bytes
+---
+ newlib/libc/include/sys/config.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/newlib/libc/include/sys/config.h b/newlib/libc/include/sys/config.h
+index ee9d3b7a7..f6f923ecb 100644
+--- a/newlib/libc/include/sys/config.h
++++ b/newlib/libc/include/sys/config.h
+@@ -188,6 +188,8 @@
+ #ifdef __XTENSA__
+ #include <xtensa/config/core-isa.h>
+ #define MALLOC_ALIGNMENT ((XCHAL_DATA_WIDTH) < 16 ? 16 : (XCHAL_DATA_WIDTH))
++/* esp8266-specific: shrink the default fd buffer size */
++#define __BUFSIZ__ 128
+ #endif
+ 
+ /* This block should be kept in sync with GCC's limits.h.  The point
+-- 
+2.21.0
+

@@ -1,0 +1,58 @@
+From 833bc1e6349c3267df24325b2b407c82115214de Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Wed, 17 Jan 2018 14:29:52 -0800
+Subject: [PATCH 14/27] Move fake FILE *s and strtod consts to PMEM
+
+There are 3 dummy quasi-file entries whose only use in life is to have
+a specific address in memory.  Move them out of RODATA.
+
+strtod has some local constant int arrays that can be moved out of RODATA.
+---
+ newlib/libc/stdio/findfp.c  | 6 +++---
+ newlib/libc/stdlib/strtod.c | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/newlib/libc/stdio/findfp.c b/newlib/libc/stdio/findfp.c
+index 68eb649d7..d0af89ba3 100644
+--- a/newlib/libc/stdio/findfp.c
++++ b/newlib/libc/stdio/findfp.c
+@@ -27,11 +27,11 @@
+ #include "local.h"
+ 
+ #ifdef _REENT_SMALL
+-const struct __sFILE_fake __sf_fake_stdin =
++const struct __sFILE_fake __sf_fake_stdin PROGMEM =
+     {_NULL, 0, 0, 0, 0, {_NULL, 0}, 0, _NULL};
+-const struct __sFILE_fake __sf_fake_stdout =
++const struct __sFILE_fake __sf_fake_stdout PROGMEM =
+     {_NULL, 0, 0, 0, 0, {_NULL, 0}, 0, _NULL};
+-const struct __sFILE_fake __sf_fake_stderr =
++const struct __sFILE_fake __sf_fake_stderr PROGMEM =
+     {_NULL, 0, 0, 0, 0, {_NULL, 0}, 0, _NULL};
+ #endif
+ 
+diff --git a/newlib/libc/stdlib/strtod.c b/newlib/libc/stdlib/strtod.c
+index a502122a5..7d6378b6f 100644
+--- a/newlib/libc/stdlib/strtod.c
++++ b/newlib/libc/stdlib/strtod.c
+@@ -288,7 +288,7 @@ _DEFUN (_strtod_r, (ptr, s00, se),
+ 	if (*s == '0') {
+ #ifndef NO_HEX_FP
+ 		{
+-		static _CONST FPI fpi = { 53, 1-1023-53+1, 2046-1023-53+1, 1, SI };
++		static _CONST FPI fpi PROGMEM = { 53, 1-1023-53+1, 2046-1023-53+1, 1, SI };
+ 		Long exp;
+ 		__ULong bits[2];
+ 		switch(s[1]) {
+@@ -416,7 +416,7 @@ _DEFUN (_strtod_r, (ptr, s00, se),
+ #ifdef INFNAN_CHECK
+ 			/* Check for Nan and Infinity */
+ 			__ULong bits[2];
+-			static _CONST FPI fpinan =	/* only 52 explicit bits */
++			static _CONST FPI fpinan PROGMEM =	/* only 52 explicit bits */
+ 				{ 52, 1-1023-53+1, 2046-1023-53+1, 1, SI };
+ 			if (!decpt)
+ 			 switch(c) {
+-- 
+2.21.0
+
