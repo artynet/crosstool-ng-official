@@ -1,0 +1,35 @@
+From 5f668b02233c74e20f8cc8c818beb9911256d861 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Thu, 25 Jan 2018 10:42:56 -0800
+Subject: [PATCH 15/27] Fix non-ESP8266 pgm_read_* macro definitions
+
+Typos were present in the non-ESP8266 versions (i.e. the no-op ones)
+of the pgm_read_* macros.  Fix the C++ casts appropriately.
+---
+ newlib/libc/include/sys/pgmspace.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/newlib/libc/include/sys/pgmspace.h b/newlib/libc/include/sys/pgmspace.h
+index 045a5156f..fb712779a 100644
+--- a/newlib/libc/include/sys/pgmspace.h
++++ b/newlib/libc/include/sys/pgmspace.h
+@@ -27,11 +27,11 @@
+ #endif
+ 
+ #ifdef __cplusplus
+-    #define pgm_read_byte(addr)             (*reinterpret_cast<const uint8_t*)(addr)>
+-    #define pgm_read_word(addr)             (*reinterpret_cast<const uint16_t*)(addr)>
+-    #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*)(addr)>
+-    #define pgm_read_float(addr)            (*reinterpret_cast<const float)(addr)>
+-    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void const *)(addr)>
++    #define pgm_read_byte(addr)             (*reinterpret_cast<const uint8_t*>(addr))
++    #define pgm_read_word(addr)             (*reinterpret_cast<const uint16_t*>(addr))
++    #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*>(addr))
++    #define pgm_read_float(addr)            (*reinterpret_cast<const float>(addr))
++    #define pgm_read_ptr(addr)              (*reinterpret_cast<const void const *>(addr))
+ #else
+     #define pgm_read_byte(addr)             (*(const uint8_t*)(addr))
+     #define pgm_read_word(addr)             (*(const uint16_t*)(addr))
+-- 
+2.21.0
+
