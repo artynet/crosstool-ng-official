@@ -1,0 +1,50 @@
+From 977ef30ec5f76d9337afefb65de70a6d3abce23b Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Mon, 29 Oct 2018 15:25:30 -0700
+Subject: [PATCH 19/27] Fix memcpy_P return value
+
+memcpy-1.c test suite showed error in return value of memcpy_P.  Correct.
+---
+ newlib/libc/sys/xtensa/string_pgmspace.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/string_pgmspace.c b/newlib/libc/sys/xtensa/string_pgmspace.c
+index 8d687f620..ed4106ce9 100644
+--- a/newlib/libc/sys/xtensa/string_pgmspace.c
++++ b/newlib/libc/sys/xtensa/string_pgmspace.c
+@@ -114,24 +114,24 @@ char* strstr_P(const char* haystack, PGM_P needle)
+ 
+ void* memcpy_P(void* dest, PGM_VOID_P src, size_t count)
+ {
++    const uint8_t* read = (const uint8_t*)(src);
++    uint8_t* write = (uint8_t*)(dest);
++
+     // Optimize for the case when dest and src start at 4-byte alignment
+     // In this case we can copy ~8x faster by simply reading and writing
+     // 32-bit values until there's less than a whole word left to write
+     if ( 0 == (((uint32_t)dest|(uint32_t)src) & 0x3) ) {
+-        const uint32_t* read = (const uint32_t*)(src);
+-        uint32_t* write = (uint32_t*)(dest);
++        const uint32_t* readW = (const uint32_t*)(src);
++        uint32_t* writeW = (uint32_t*)(dest);
+         while (count >= 4) {
+-            *write++ = *read++;
++            *writeW++ = *readW++;
+             count -= 4;
+         }
+         // Let default byte-by-byte finish the work
+-        dest = (void *) write;
+-        src = (PGM_VOID_P) read;
++        write = (uint8_t *) writeW;
++        read = (const uint8_t*) readW;
+     }
+ 
+-    const uint8_t* read = (const uint8_t*)(src);
+-    uint8_t* write = (uint8_t*)(dest);
+-
+     while (count)
+     {
+         *write++ = pgm_read_byte(read++);
+-- 
+2.21.0
+
