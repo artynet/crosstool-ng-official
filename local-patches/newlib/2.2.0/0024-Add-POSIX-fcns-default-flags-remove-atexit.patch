@@ -1,0 +1,49 @@
+From c0f3596feb0adc0907c4323c141ff4a1954c5196 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Sun, 9 Dec 2018 09:00:15 -0800
+Subject: [PATCH 24/27] Add POSIX fcns, default flags, remove atexit
+
+Add POSIX directory to build process while also including the default
+cross-compile flags as well as removing the unneeded atexit function.
+Now a simple make without manual defines is all that's required.
+---
+ newlib/configure.host       | 2 ++
+ newlib/libc/stdlib/atexit.c | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/newlib/configure.host b/newlib/configure.host
+index a9b1bf67a..dd1d876de 100644
+--- a/newlib/configure.host
++++ b/newlib/configure.host
+@@ -552,7 +552,9 @@ case "${host}" in
+ 	sys_dir=w65
+ 	;;
+   xtensa*-*-* | xtensa*-*)
++	posix_dir=posix
+ 	sys_dir=xtensa
++	newlib_cflags="${newlib_cflags} -D_NO_EXECVE -D_NO_GLOB -D_NO_WORDEXP -DHAVE_OPENDIR -DSIGNAL_PROVIDED -DABORT_PROVIDED -DMALLOC_PROVIDED -DATEXIT_PROVIDED"
+ 	;;
+   z8k-*-coff)
+ 	sys_dir=z8ksim
+diff --git a/newlib/libc/stdlib/atexit.c b/newlib/libc/stdlib/atexit.c
+index fa91deb03..06c11b7a7 100644
+--- a/newlib/libc/stdlib/atexit.c
++++ b/newlib/libc/stdlib/atexit.c
+@@ -50,6 +50,8 @@ Supporting OS subroutines required: <<close>>, <<fstat>>, <<isatty>>,
+ <<lseek>>, <<read>>, <<sbrk>>, <<write>>.
+ */
+ 
++#ifndef ATEXIT_PROVIDED
++
+ #include <stdlib.h>
+ #include "atexit.h"
+ 
+@@ -64,3 +66,5 @@ _DEFUN (atexit,
+ {
+   return __register_exitproc (__et_atexit, fn, NULL, NULL);
+ }
++
++#endif
+-- 
+2.21.0
+

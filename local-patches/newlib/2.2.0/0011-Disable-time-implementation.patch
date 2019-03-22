@@ -1,0 +1,30 @@
+From e9fa704d48e28e1348ffd21c6238d18645615881 Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <igrokhotkov@gmail.com>
+Date: Tue, 19 Apr 2016 12:38:39 +0300
+Subject: [PATCH 11/27] Disable time implementation
+
+---
+ newlib/libc/time/time.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/newlib/libc/time/time.c b/newlib/libc/time/time.c
+index 2506388f6..ffcc8627c 100644
+--- a/newlib/libc/time/time.c
++++ b/newlib/libc/time/time.c
+@@ -36,7 +36,7 @@ Supporting OS subroutine required: Some implementations require
+ #include <reent.h>
+ #include <sys/types.h>
+ #include <sys/time.h>
+-
++#if 0
+ time_t
+ _DEFUN (time, (t),
+ 	time_t * t)
+@@ -51,3 +51,4 @@ _DEFUN (time, (t),
+     }
+   return -1;
+ }
++#endif
+-- 
+2.21.0
+

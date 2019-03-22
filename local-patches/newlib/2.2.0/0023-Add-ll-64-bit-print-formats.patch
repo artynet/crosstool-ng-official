@@ -1,0 +1,163 @@
+From dbf72aa641ab2275b6cb246d1893dd24c56b9093 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Tue, 4 Dec 2018 09:45:36 -0800
+Subject: [PATCH 23/27] Add %ll 64-bit print formats
+
+---
+ newlib/libc/stdio/nano-vfprintf.c       | 18 ++++++++++++++++--
+ newlib/libc/stdio/nano-vfprintf_i.c     | 22 +++++++++++-----------
+ newlib/libc/stdio/nano-vfprintf_local.h | 23 +++++++++++++++--------
+ 3 files changed, 42 insertions(+), 21 deletions(-)
+
+diff --git a/newlib/libc/stdio/nano-vfprintf.c b/newlib/libc/stdio/nano-vfprintf.c
+index 9ace3c008..9b69eaf5c 100644
+--- a/newlib/libc/stdio/nano-vfprintf.c
++++ b/newlib/libc/stdio/nano-vfprintf.c
+@@ -614,9 +614,23 @@ _DEFUN(_VFPRINTF_R, (data, fp, fmt0, ap),
+ 	  prt_data.flags |= (SHORTINT << (cp - flag_chars));
+ 	  fmt++;
+ 	}
+-      /* Convert %z into a no-op as size_t == int on ESP8266 */
+-      if (pgm_read_byte(fmt) == 'z')
++      /* Handle ll case */
++      if ((prt_data.flags & LONGINT) && (pgm_read_byte(fmt) == 'l'))
+         {
++          prt_data.flags |= LONGLONG;
++          prt_data.flags &= ~LONGINT;
++          fmt++;
++        }
++
++      /* Convert %z and %t into a no-op as size_t == int on ESP8266 */
++      if ((pgm_read_byte(fmt) == 'z') || (pgm_read_byte(fmt) == 't'))
++        {
++          fmt++;
++        }
++      /* Convert %j to a ll */
++      if (pgm_read_byte(fmt) == 'j')
++        {
++          prt_data.flags |= LONGLONG;
+           fmt++;
+         }
+ 
+diff --git a/newlib/libc/stdio/nano-vfprintf_i.c b/newlib/libc/stdio/nano-vfprintf_i.c
+index c1cc07fe5..420ff40a7 100644
+--- a/newlib/libc/stdio/nano-vfprintf_i.c
++++ b/newlib/libc/stdio/nano-vfprintf_i.c
+@@ -111,7 +111,7 @@ _printf_i (struct _reent *data, struct _prt_data_t *pdata, FILE *fp,
+ {
+   /* Field size expanded by dprec.  */
+   int realsz;
+-  u_quad_t _uquad;
++  u_oct_t _uoct;
+   int base;
+   int n;
+   char *cp = pdata->buf + BUF;
+@@ -128,17 +128,17 @@ _printf_i (struct _reent *data, struct _prt_data_t *pdata, FILE *fp,
+       goto non_number_nosign;
+     case 'd':
+     case 'i':
+-      _uquad = SARG (pdata->flags);
+-      if ((long) _uquad < 0)
++      _uoct = SARG (pdata->flags);
++      if ((long long) _uoct < 0)
+ 	{
+-	  _uquad = -_uquad;
++	  _uoct = -_uoct;
+ 	  pdata->l_buf[0] = '-';
+ 	}
+       base = 10;
+       goto number;
+     case 'u':
+     case 'o':
+-      _uquad = UARG (pdata->flags);
++      _uoct = UARG (pdata->flags);
+       base = (pdata->code == 'o') ? 8 : 10;
+       goto nosign;
+     case 'X':
+@@ -160,13 +160,13 @@ _printf_i (struct _reent *data, struct _prt_data_t *pdata, FILE *fp,
+     case 'x':
+       pdata->l_buf[2] = 'x';
+ hex:
+-      _uquad = UARG (pdata->flags);
++      _uoct = UARG (pdata->flags);
+       base = 16;
+       if (pdata->flags & ALT)
+ 	pdata->flags |= HEXPREFIX;
+ 
+       /* Leading 0x/X only if non-zero.  */
+-      if (_uquad == 0)
++      if (_uoct == 0)
+ 	pdata->flags &= ~HEXPREFIX;
+ 
+       /* Unsigned conversions.  */
+@@ -186,14 +186,14 @@ number:
+        * explicit precision of zero is no characters.''
+        *	-- ANSI X3J11
+        */
+-      if (_uquad != 0 || pdata->prec != 0)
++      if (_uoct != 0 || pdata->prec != 0)
+ 	{
+ 	  do
+ 	    {
+-	      *--cp = pgm_read_byte(&xdigs[_uquad % base]);
+-	      _uquad /= base;
++	      *--cp = pgm_read_byte(&xdigs[_uoct % base]);
++	      _uoct /= base;
+ 	    }
+-	  while (_uquad);
++	  while (_uoct);
+ 	}
+       /* For 'o' conversion, '#' increases the precision to force the first
+ 	 digit of the result to be zero.  */
+diff --git a/newlib/libc/stdio/nano-vfprintf_local.h b/newlib/libc/stdio/nano-vfprintf_local.h
+index 83b479e56..55564593a 100644
+--- a/newlib/libc/stdio/nano-vfprintf_local.h
++++ b/newlib/libc/stdio/nano-vfprintf_local.h
+@@ -113,6 +113,10 @@ extern char *_dtoa_r _PARAMS((struct _reent *, double, int,
+ #define quad_t long
+ #define u_quad_t unsigned long
+ 
++#define oct_t long long
++#define u_oct_t unsigned long long
++
++typedef oct_t *  oct_ptr_t;
+ typedef quad_t * quad_ptr_t;
+ typedef _PTR     void_ptr_t;
+ typedef char *   char_ptr_t;
+@@ -140,6 +144,7 @@ typedef short *  short_ptr_t;
+    sizeof (long long) = sizeof long > sizeof int.  */
+ #define QUADINT		LONGINT
+ #define FPT		0x400		/* Floating point number.  */
++#define LONGLONG	0x800		/* Long long */
+ /* Define as 0, to make SARG and UARG occupy fewer instructions.  */
+ # define CHARINT	0
+ 
+@@ -150,15 +155,17 @@ typedef short *  short_ptr_t;
+    argument extraction methods.  Also they should be used in nano-vfprintf_i.c
+    and nano-vfprintf_float.c only, since ap is a pointer to va_list.  */
+ #define	SARG(flags) \
+-	(flags&LONGINT ? GET_ARG (N, (*ap), long) : \
+-	    flags&SHORTINT ? (long)(short)GET_ARG (N, (*ap), int) : \
+-	    flags&CHARINT ? (long)(signed char)GET_ARG (N, (*ap), int) : \
+-	    (long)GET_ARG (N, (*ap), int))
++	(flags&LONGINT ? (long long)(long)GET_ARG (N, (*ap), long) : \
++	    flags&SHORTINT ? (long long)(short)GET_ARG (N, (*ap), int) : \
++	    flags&CHARINT ? (long long)(signed char)GET_ARG (N, (*ap), int) : \
++            flags&LONGLONG ? (long long)GET_ARG (N, (*ap), long long) : \
++	    (long long)GET_ARG (N, (*ap), int))
+ #define	UARG(flags) \
+-	(flags&LONGINT ? GET_ARG (N, (*ap), u_long) : \
+-	    flags&SHORTINT ? (u_long)(u_short)GET_ARG (N, (*ap), int) : \
+-	    flags&CHARINT ? (u_long)(unsigned char)GET_ARG (N, (*ap), int) : \
+-	    (u_long)GET_ARG (N, (*ap), u_int))
++	(flags&LONGINT ? (unsigned long long)(u_long)GET_ARG (N, (*ap), u_long) : \
++	    flags&SHORTINT ? (unsigned long long)(u_short)GET_ARG (N, (*ap), int) : \
++	    flags&CHARINT ? (unsigned long long)(unsigned char)GET_ARG (N, (*ap), int) : \
++	    flags&LONGLONG ? (unsigned long long)GET_ARG (N, (*ap), unsigned long long) : \
++	    (unsigned long long)GET_ARG (N, (*ap), u_int))
+ 
+ /* BEWARE, these `goto error' on error. And they are used
+    in more than one functions.
+-- 
+2.21.0
+

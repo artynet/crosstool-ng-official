@@ -1,0 +1,57 @@
+From 19353646da43aa446aacf7cfac0a041562866987 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Mon, 3 Dec 2018 08:37:15 -0800
+Subject: [PATCH 21/27] Add %z and %x to nano-printf
+
+%z is a C99 format used for size_t and was not included in any printf.
+On the 8266 it's a no-op as size_t==int, so ignore it and things just
+work.
+
+%x lowercase support added back in (wasn't present in nano-printf).
+---
+ newlib/libc/stdio/nano-vfprintf.c   | 5 +++++
+ newlib/libc/stdio/nano-vfprintf_i.c | 5 ++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/newlib/libc/stdio/nano-vfprintf.c b/newlib/libc/stdio/nano-vfprintf.c
+index 28b4367c5..9ace3c008 100644
+--- a/newlib/libc/stdio/nano-vfprintf.c
++++ b/newlib/libc/stdio/nano-vfprintf.c
+@@ -614,6 +614,11 @@ _DEFUN(_VFPRINTF_R, (data, fp, fmt0, ap),
+ 	  prt_data.flags |= (SHORTINT << (cp - flag_chars));
+ 	  fmt++;
+ 	}
++      /* Convert %z into a no-op as size_t == int on ESP8266 */
++      if (pgm_read_byte(fmt) == 'z')
++        {
++          fmt++;
++        }
+ 
+       /* The conversion specifiers.  */
+       prt_data.code = pgm_read_byte(fmt++);
+diff --git a/newlib/libc/stdio/nano-vfprintf_i.c b/newlib/libc/stdio/nano-vfprintf_i.c
+index cd09f9555..c1cc07fe5 100644
+--- a/newlib/libc/stdio/nano-vfprintf_i.c
++++ b/newlib/libc/stdio/nano-vfprintf_i.c
+@@ -115,7 +115,9 @@ _printf_i (struct _reent *data, struct _prt_data_t *pdata, FILE *fp,
+   int base;
+   int n;
+   char *cp = pdata->buf + BUF;
+-  static const char xdigs[] PROGMEM = "0123456789ABCDEF";
++  static const char xdigsUC[] PROGMEM = "0123456789ABCDEF";
++  static const char xdigsLC[] PROGMEM = "0123456789abcdef";
++  const char *xdigs = xdigsLC;
+ 
+   /* Decoding the conversion specifier.  */
+   switch (pdata->code)
+@@ -141,6 +143,7 @@ _printf_i (struct _reent *data, struct _prt_data_t *pdata, FILE *fp,
+       goto nosign;
+     case 'X':
+       pdata->l_buf[2] = 'X';
++      xdigs = xdigsUC;
+       goto hex;
+     case 'p':
+       /*
+-- 
+2.21.0
+
