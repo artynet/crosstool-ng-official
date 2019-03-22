@@ -1,0 +1,26 @@
+From 32a76d29dc905b109af224f22aa9a162e7e7a40c Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <igrokhotkov@gmail.com>
+Date: Tue, 19 Apr 2016 12:38:13 +0300
+Subject: [PATCH 10/27] Enable full fmod implementation
+
+https://github.com/esp8266/Arduino/issues/612
+---
+ newlib/libm/math/ef_fmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/newlib/libm/math/ef_fmod.c b/newlib/libm/math/ef_fmod.c
+index 1454086cc..e84ddbba4 100644
+--- a/newlib/libm/math/ef_fmod.c
++++ b/newlib/libm/math/ef_fmod.c
+@@ -18,7 +18,7 @@
+ /* __ieee754_remainderf is provided by libgcc and presumably is faster
+    then original implementation */
+ 
+-#if 1
++#if 0
+ 
+ extern float __ieee754_remainderf(float x, float y);
+ 
+-- 
+2.21.0
+

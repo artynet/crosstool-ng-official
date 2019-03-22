@@ -1,0 +1,30 @@
+From 175289f3594ee3dab6d7b8a6aa04906d98203b3b Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Thu, 24 Jan 2019 12:50:37 -0800
+Subject: [PATCH 25/27] Fix pgm_read_float implementation
+
+---
+ newlib/libc/sys/xtensa/sys/pgmspace.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/sys/pgmspace.h b/newlib/libc/sys/xtensa/sys/pgmspace.h
+index ba46d8468..26709cbf8 100644
+--- a/newlib/libc/sys/xtensa/sys/pgmspace.h
++++ b/newlib/libc/sys/xtensa/sys/pgmspace.h
+@@ -72,11 +72,11 @@ static inline uint16_t pgm_read_word_inlined(const void* addr) {
+ #define pgm_read_word(addr)             pgm_read_word_inlined(addr)
+ #ifdef __cplusplus
+     #define pgm_read_dword(addr)            (*reinterpret_cast<const uint32_t*>(addr))
+-    #define pgm_read_float(addr)            (*reinterpret_cast<const float>(addr))
++    #define pgm_read_float(addr)            (*reinterpret_cast<const float*>(addr))
+     #define pgm_read_ptr(addr)              (*reinterpret_cast<const void*>(addr))
+ #else
+     #define pgm_read_dword(addr)            (*(const uint32_t*)(addr))
+-    #define pgm_read_float(addr)            (*(const float)(addr))
++    #define pgm_read_float(addr)            (*(const float*)(addr))
+     #define pgm_read_ptr(addr)              (*(const void*)(addr))
+ #endif
+ 
+-- 
+2.21.0
+

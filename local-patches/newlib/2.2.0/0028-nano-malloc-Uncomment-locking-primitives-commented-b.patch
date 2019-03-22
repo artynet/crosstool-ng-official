@@ -1,0 +1,29 @@
+From cbe80794ed0083cd77764a42eff4e8508e7963f4 Mon Sep 17 00:00:00 2001
+From: Angus Gratton <gus@projectgus.com>
+Date: Wed, 20 Apr 2016 14:58:49 +1000
+Subject: [PATCH 10/10] nano malloc: Uncomment locking primitives (commented by
+ default)
+
+---
+ newlib/libc/stdlib/nano-mallocr.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/newlib/libc/stdlib/nano-mallocr.c b/newlib/libc/stdlib/nano-mallocr.c
+index 8d6ca5ce0..4a8257419 100644
+--- a/newlib/libc/stdlib/nano-mallocr.c
++++ b/newlib/libc/stdlib/nano-mallocr.c
+@@ -56,9 +56,8 @@
+ #define RCALL reent_ptr,
+ #define RONECALL reent_ptr
+ 
+-/* Disable MALLOC_LOCK so far. So it won't be thread safe */
+-#define MALLOC_LOCK /*__malloc_lock(reent_ptr) */
+-#define MALLOC_UNLOCK /*__malloc_unlock(reent_ptr) */
++#define MALLOC_LOCK __malloc_lock(reent_ptr)
++#define MALLOC_UNLOCK __malloc_unlock(reent_ptr)
+ 
+ #define RERRNO reent_ptr->_errno
+ 
+-- 
+2.21.0
+
