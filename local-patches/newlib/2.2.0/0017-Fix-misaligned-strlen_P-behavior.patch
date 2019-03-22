@@ -1,0 +1,25 @@
+From 4569e18fa6ff596b0529f541e0ceb113d349d03a Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Mon, 29 Oct 2018 13:00:34 -0700
+Subject: [PATCH 17/27] Fix misaligned strlen_P behavior
+
+---
+ newlib/libc/sys/xtensa/string_pgmspace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/newlib/libc/sys/xtensa/string_pgmspace.c b/newlib/libc/sys/xtensa/string_pgmspace.c
+index 9ddcc4dde..144cadd95 100644
+--- a/newlib/libc/sys/xtensa/string_pgmspace.c
++++ b/newlib/libc/sys/xtensa/string_pgmspace.c
+@@ -37,7 +37,7 @@ size_t strnlen_P(PGM_P s, size_t size)
+     char c = 0;
+ 
+     // Take care of any misaligned starting data
+-    for (cp = s; 0 != ((uint32_t)cp & 0x3) && size != 0 ; cp++, size--) {
++    for (cp = s; 0 != ((uint32_t)cp & 0x3) && size != 0 ; cp++, size--, s++) {
+         c = pgm_read_byte(cp);
+         if (!c) goto done;
+     }
+-- 
+2.21.0
+
