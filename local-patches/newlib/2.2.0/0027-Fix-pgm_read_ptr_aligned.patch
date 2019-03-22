@@ -1,0 +1,30 @@
+From 21aad603a8530d864634f921828e66e7d3eb1f02 Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Thu, 7 Feb 2019 09:00:15 -0800
+Subject: [PATCH 27/27] Fix pgm_read_ptr_aligned()
+
+---
+ newlib/libc/sys/xtensa/sys/pgmspace.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/newlib/libc/sys/xtensa/sys/pgmspace.h b/newlib/libc/sys/xtensa/sys/pgmspace.h
+index f0f5b64fe..4a3850d25 100644
+--- a/newlib/libc/sys/xtensa/sys/pgmspace.h
++++ b/newlib/libc/sys/xtensa/sys/pgmspace.h
+@@ -75,11 +75,11 @@ static inline uint16_t pgm_read_word_inlined(const void* addr) {
+ #ifdef __cplusplus
+     #define pgm_read_dword_aligned(addr)   (*reinterpret_cast<const uint32_t*>(addr))
+     #define pgm_read_float_aligned(addr)   (*reinterpret_cast<const float*>(addr))
+-    #define pgm_read_ptr_aligned(addr)     (*reinterpret_cast<const void*>(addr))
++    #define pgm_read_ptr_aligned(addr)     (*reinterpret_cast<const void* const*>(addr))
+ #else
+     #define pgm_read_dword_aligned(addr)   (*(const uint32_t*)(addr))
+     #define pgm_read_float_aligned(addr)   (*(const float*)(addr))
+-    #define pgm_read_ptr_aligned(addr)     (*(const void*)(addr))
++    #define pgm_read_ptr_aligned(addr)     (*(const void* const*)(addr))
+ #endif
+ 
+ __attribute__((optimize("-O3"), always_inline)) static inline uint32_t pgm_read_dword_unaligned(const void *addr) {
+-- 
+2.21.0
+

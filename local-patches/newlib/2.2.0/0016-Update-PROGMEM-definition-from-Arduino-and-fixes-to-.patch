@@ -1,0 +1,133 @@
+From e8417ca2eeae18de8440b8d03a6916b61c9de98d Mon Sep 17 00:00:00 2001
+From: "Earle F. Philhower, III" <earlephilhower@yahoo.com>
+Date: Wed, 17 Oct 2018 19:39:43 -0700
+Subject: [PATCH 16/27] Update PROGMEM definition from Arduino and fixes to
+ generic pgmspace.h (#6)
+
+* Support and optimize PROGMEM accesses in libc
+
+Move all the pgmspace.(cpp/h) macros and functions from Arduino IDE
+into newlib as a first-class citizen.  All the mem*_P, str*_P, and
+*printf_P functions are included in this move, as well as the
+PROGMEM macro and pgm_read_*.
+
+Allow for use of PROGMEM based format and parameter strings in all
+*printf functions.  No need for copying PSTR()s into RAM before printing
+them out.
+
+Add "%S" (capital-S) format that I've been told, but cannot verify,
+is used in Arduino to specify a PROGMEM string parameter in printfs,
+as an alias for "%s" since plain "%s" can now handle PROGMEM.
+
+PSTR() to 4-byte alignment.  This results in an average wasted space of
+1.5bytes/string (25% @0, 25%@1, 25%@2, 25%@3 == 1.5) but allows for
+aligned memcpy_P and str(n)cpy_P performance to go up by 4x to 8x by
+using 32-bit progmem reads instead of 4 single-byte pgm_read_byte
+macros (which are many instructions in length, too).
+
+Optimized the memcpy_P, strnlen_P, and strncpy_P functions to use 32-bit
+direct reads whenver possible (source and dest alignment mediated), but
+there is still room for improvement in others in newlib/lib/sys/xtensa/*.c.
+
+str(n)cpy now also transparently supports PROGMEM and RAM, only using
+the slower PROGMEM version when the source is in PROGMEM.  This was
+due to a GCC optimization:  When GCC sees a printf("xxxx") or a
+printf("%s", "string") it silently optimizes out the printf and replaces
+it with an appropriate strcpy.  So the changes to printf to support
+PROGMEM wouldn't ever be invoked, and instead GCC silently calls strcpy
+with both RAM and PSTR strings.
+
+Finally, move several constant arrays from RODATA into PROGMEM and
+update their accessors.  Among these are the ctype array, ~260 bytes,
+mprec* arrays, ~300 bytes, and strings/daycounts in the time
+formatting functions, ~200 bytes.
+
+* Move fake FILE *s and strtod consts to PMEM
+
+There are 3 dummy quasi-file entries whose only use in life is to have
+a specific address in memory.  Move them out of RODATA.
+
+strtod has some local constant int arrays that can be moved out of RODATA.
+
+* Fix non-ESP8266 pgm_read_* macro definitions
+
+Typos were present in the non-ESP8266 versions (i.e. the no-op ones)
+of the pgm_read_* macros.  Fix the C++ casts appropriately.
+
+* Merge with latest Arduino core pgmspace.h
+
+PGMSPACE.H in Arduino had two changes that were not reflected in
+the version here:
+. Unique section IDs for each PROGMEM element (#5048)
+. __PROG_TYPES_COMPAT__ wrapping (#4619)
+
+* Fix definition of PGM_P types for generic systems
+---
+ newlib/libc/include/sys/pgmspace.h    |  4 ++--
+ newlib/libc/sys/xtensa/sys/pgmspace.h | 16 ++++++++++++++--
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/newlib/libc/include/sys/pgmspace.h b/newlib/libc/include/sys/pgmspace.h
+index fb712779a..625eff155 100644
+--- a/newlib/libc/include/sys/pgmspace.h
++++ b/newlib/libc/include/sys/pgmspace.h
+@@ -15,11 +15,11 @@
+ #endif
+ 
+ #ifndef PGM_P
+-#define PGM_P
++#define PGM_P const char *
+ #endif
+ 
+ #ifndef PGM_VOID_P
+-#define PGM_VOID_P
++#define PGM_VOID_P const void *
+ #endif
+ 
+ #ifndef PSTR
+diff --git a/newlib/libc/sys/xtensa/sys/pgmspace.h b/newlib/libc/sys/xtensa/sys/pgmspace.h
+index 93989c029..bb517366b 100644
+--- a/newlib/libc/sys/xtensa/sys/pgmspace.h
++++ b/newlib/libc/sys/xtensa/sys/pgmspace.h
+@@ -13,7 +13,16 @@ extern "C" {
+   #define ICACHE_RODATA_ATTR __attribute__((section(".irom.text")))
+ #endif
+ #ifndef PROGMEM
+-  #define PROGMEM            ICACHE_RODATA_ATTR
++  // The following two macros cause a parameter to be enclosed in quotes
++  // by the preopressor (i.e. for concatenating ints to strings)
++  #define __STRINGIZE_NX(A) #A
++  #define __STRINGIZE(A) __STRINGIZE_NX(A)
++  // Since __section__ is supposed to be only use for global variables,
++  // there could be conflicts when a static/inlined function has them in the
++  // same file as a non-static PROGMEM object.
++  // Ref: https://gcc.gnu.org/onlinedocs/gcc-3.2/gcc/Variable-Attributes.html
++  // Place each progmem object into its own named section, avoiding conflicts
++  #define PROGMEM __attribute__((section( "\".irom.text." __FILE__ "." __STRINGIZE(__LINE__) "."  __STRINGIZE(__COUNTER__) "\"")))
+ #endif
+ #ifndef PGM_P
+   #define PGM_P              const char *
+@@ -82,9 +91,10 @@ static inline uint16_t pgm_read_word_inlined(const void* addr) {
+ #define pgm_read_float_far(addr)        pgm_read_float(addr)
+ #define pgm_read_ptr_far(addr)          pgm_read_ptr(addr)
+ 
+-/* TODO: Are the following used anywhere?  If not, remove */
+ #define _SFR_BYTE(n) (n)
+ 
++#ifdef __PROG_TYPES_COMPAT__
++
+ typedef void prog_void;
+ typedef char prog_char;
+ typedef unsigned char prog_uchar;
+@@ -95,6 +105,8 @@ typedef uint16_t prog_uint16_t;
+ typedef int32_t prog_int32_t;
+ typedef uint32_t prog_uint32_t;
+ 
++#endif // defined(__PROG_TYPES_COMPAT__)
++
+ #ifdef __cplusplus
+ }
+ #endif
+-- 
+2.21.0
+
